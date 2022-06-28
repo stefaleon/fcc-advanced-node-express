@@ -11,6 +11,13 @@ const LocalStrategy = require('passport-local');
 
 const app = express();
 
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect('/');
+}
+
 app.set('view engine', 'pug');
 
 fccTesting(app); //For FCC testing purposes
@@ -39,7 +46,7 @@ myDB(async (client) => {
   app.route('/login').post(passport.authenticate('local', { failureRedirect: '/' }), (req, res) => {
     res.redirect('/profile');
   });
-  app.route('/profile').get((req, res) => {
+  app.route('/profile').get(ensureAuthenticated, (req, res) => {
     res.render(process.cwd() + '/views/pug/profile');
   });
   passport.serializeUser((user, done) => {
