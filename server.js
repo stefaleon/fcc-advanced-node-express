@@ -28,12 +28,19 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 myDB(async (client) => {
-  const myDataBase = await client.db('database').collection('users');  
+  const myDataBase = await client.db('database').collection('users');    
   app.route('/').get((req, res) => {   
     res.render('pug', {
       title: 'Connected to Database',
-      message: 'Please login'
+      message: 'Please login',
+      showLogin: true
     });
+  });
+  app.route('/login').post(passport.authenticate('local', { failureRedirect: '/' }), (req, res) => {
+    res.redirect('/profile');
+  });
+  app.route('/profile').get((req, res) => {
+    res.render(process.cwd() + '/views/pug/profile');
   });
   passport.serializeUser((user, done) => {
     done(null, user._id);
